@@ -1,31 +1,48 @@
 import express, { Response, Request } from "express";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 const app = express();
 const port = process.env.PORT ?? 3000;
 
 interface SearchRequest extends Request {
     body: {
-        text: string
-    }
+        text: string;
+        keyword: string;
+        algorithm: "Boyer-Moore" | "KMP" | "Regex";
+    };
 }
 
-// type SearchResponseBody = {
-//     date: Date
-// };
+type SearchResponseBody = {
+    date: Date;
+    count: number;
+};
 
-app.use("/", express.json(), (req: SearchRequest, res: Response<string>) => {
-    exec(`python alg/main.py ${req.body.text}`, (err, stdout, stderr) => {
-        if (err) {
-            console.log(err);
-            return res.status(500).send("Internal server error!");
-        }
-        if (stderr) {
-            console.log(stderr);
-        }
-        return res.send(stdout);
-    });
-});
+app.use(
+    "/",
+    express.json(),
+    (req: SearchRequest, res: Response<SearchResponseBody | string>) => {
+        console.log(JSON.stringify(req.body));
+        const process = spawn("python", [
+            "src/algorithm/main.py",
+            JSON.stringify(req.body),
+        ]);
+        let result = "";
+        let error = "";
+        process.stdout.on("data", (data) => {
+            result += data;
+        });
+        process.stderr.on("data", (data) => {
+            error += data;
+        });
+        process.stdout.on("end", () => {
+            if (error) {
+                res.send(error);
+            } else {
+                res.send(result);
+            }
+        });
+    },
+);
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}...`);
