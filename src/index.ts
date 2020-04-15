@@ -13,13 +13,14 @@ interface SearchRequest extends Request {
 }
 
 type SearchResponseBody = {
-    date: Date;
+    time: string;
     count: number;
 };
 
+app.use(express.json());
+
 app.use(
     "/",
-    express.json(),
     (req: SearchRequest, res: Response<SearchResponseBody | string>) => {
         console.log(JSON.stringify(req.body));
         const process = spawn("python", [
@@ -38,7 +39,7 @@ app.use(
             if (error) {
                 res.send(error);
             } else {
-                res.send(result);
+                res.send(JSON.parse(result));
             }
         });
     },
