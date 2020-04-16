@@ -15,25 +15,35 @@ def split_sentences(text: str):
     return re.findall(pattern, text, re.MULTILINE)
 
 
+def calc_range(a: tuple, b: tuple) -> int:
+    return b[0] - a[1] if a[1] < b[0] else a[0] - b[1]
+
+
 def get_count(sentence: str, keyword: str) -> str:
-    pattern = r"(?:(?: (\d+(?:[\.,]\d)*) (?:\D*))|(?:.?))(" + \
-        keyword + r")(?:(?:(?:\D*?) (\d+(?:[\.,]\d)*)) |(?:.?))"
+    """
+    Abandoned function, but felt very disturbing to delete
+    """
+    pattern = r"(?:(?:(?:^| )(\d+(?:\.\d+)*) (?:.*))|(?:.?))(" + \
+        keyword + r")(?:(?:(?:.*?) (\d+(?:\.\d+)*))(?: |$)|(?:.?))"
     match = re.search(pattern, sentence, re.IGNORECASE)
-    border_left = match.span(1)[1]
-    span = match.span(2)
-    border_right = match.span(3)[0]
-    if border_left == -1 and border_right == -1:
-        return ""
-    if border_left == -1:
-        return match[3]
-    elif border_right == -1:
-        return match[1]
-    else:
-        return match[3] if span[0]-border_left > border_right-span[1] else match[1]
+    return match[3] if calc_range(match.span(1), match.span(2)) > calc_range(match.span(2), match.span(3)) else match[1]
 
 
-def get_time(sentence: str, keyword: str) -> str:
-    pass
+def get_count_by_span(sentence: str, keyword_span: tuple) -> str:
+    pattern = r"(?:^|[^\w\.-_-])(\d+(?:[\.,]\d{3})*)(?:$|[^\w\.-_-])"
+    matches = re.finditer(pattern, sentence, re.IGNORECASE)
+    res = None
+    min = len(sentence) + 1
+    for match in matches:
+        v = calc_range(match.span(), keyword_span)
+        if v < min:
+            min = v
+            res = match[1]
+    return res
+
+
+def get_time(sentence: str, keyword: str, default: str) -> str:
+    return ""
 
 
 if __name__ == "__main__":
@@ -54,9 +64,14 @@ if __name__ == "__main__":
         }[]
     """
     keyword = data["keyword"]
-    print(json.dumps(map(lambda sentence: {
-        "sentence": sentence,
-        "index_found": get_result(sentence, keyword),
-        "time": get_time(sentence, keyword),
-        "count": get_count(sentence, keyword)
-    }, split_sentences(data["text"]))))
+    result = []
+    for sentence in split_sentences(data["text"]):
+        idx = get_result(sentence, keyword)
+        if idx != -1:
+            result.append({
+                "sentence": sentence,
+                "index_found": idx,
+                "time": get_time(sentence, keyword, ""),
+                "count": get_count_by_span(sentence, (idx, idx + len(keyword)))
+            })
+    print(json.dumps(result))

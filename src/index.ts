@@ -42,7 +42,11 @@ app.use(
             if (error && !result) {
                 res.status(400).send(error);
             } else {
-                res.json(JSON.parse(result));
+                try {
+                    res.json(JSON.parse(result));
+                } catch (err) {
+                    res.status(500).send("Parsing JSON failed!");
+                }
             }
         });
     },
