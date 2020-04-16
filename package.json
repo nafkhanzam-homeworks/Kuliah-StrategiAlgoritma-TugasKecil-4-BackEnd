@@ -2,11 +2,11 @@
     "name": "kuliah-strategialgoritma-tugaskecil-4-backend",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/index.js",
+    "main": "bin/index.js",
     "private": true,
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "tsc && node dist",
+        "start": "tsc && node bin",
         "dev": "nodemon --watch src/ --exec \"ts-node src\" -e ts"
     },
     "repository": {
@@ -20,10 +20,12 @@
     },
     "homepage": "https://github.com/nafkhanzam/Kuliah-StrategiAlgoritma-TugasKecil-4-BackEnd#readme",
     "dependencies": {
+        "cors": "^2.8.5",
         "express": "^4.17.1",
         "typescript": "^3.8.3"
     },
     "devDependencies": {
+        "@types/cors": "^2.8.6",
         "@types/express": "^4.17.6"
     }
 }

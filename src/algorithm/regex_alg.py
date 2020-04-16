@@ -1,2 +1,2 @@
-def get_result(text: str, keyword: str) -> dict:
+def get_result(text: str, keyword: str) -> int:
     pass

@@ -1,8 +1,6 @@
-import express, { Response, Request } from "express";
 import { spawn } from "child_process";
-
-const app = express();
-const port = process.env.PORT ?? 3000;
+import cors from "cors";
+import express, { Request, Response } from "express";
 
 interface SearchRequest extends Request {
     body: {
@@ -15,14 +13,19 @@ interface SearchRequest extends Request {
 type SearchResponseBody = {
     time: string;
     count: number;
-};
+    sentence: string;
+    index_found: number;
+}[];
 
+const app = express();
+const port = process.env.PORT ?? 3000;
+
+app.use(cors());
 app.use(express.json());
 
 app.use(
     "/",
     (req: SearchRequest, res: Response<SearchResponseBody | string>) => {
-        console.log(JSON.stringify(req.body));
         const process = spawn("python", [
             "src/algorithm/main.py",
             JSON.stringify(req.body),
@@ -36,10 +39,10 @@ app.use(
             error += data;
         });
         process.stdout.on("end", () => {
-            if (error) {
-                res.send(error);
+            if (error && !result) {
+                res.status(400).send(error);
             } else {
-                res.send(JSON.parse(result));
+                res.json(JSON.parse(result));
             }
         });
     },
