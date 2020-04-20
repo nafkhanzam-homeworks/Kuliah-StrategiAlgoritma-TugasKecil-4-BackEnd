@@ -1,2 +1,2 @@
-def get_result(text: str, keyword: str) -> int:
+def get_result(text: str, pattern: str) -> int:
     pass

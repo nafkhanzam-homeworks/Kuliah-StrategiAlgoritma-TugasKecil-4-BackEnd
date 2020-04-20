@@ -21,7 +21,7 @@ def calc_range(a: tuple, b: tuple) -> int:
 
 def get_count(sentence: str, keyword: str) -> str:
     """
-    Abandoned function, but felt very disturbing to delete
+    Abandoned function, but felt very deplore to delete
     """
     pattern = r"(?:(?:(?:^| )(\d+(?:\.\d+)*) (?:.*))|(?:.?))(" + \
         keyword + r")(?:(?:(?:.*?) (\d+(?:\.\d+)*))(?: |$)|(?:.?))"
@@ -29,7 +29,7 @@ def get_count(sentence: str, keyword: str) -> str:
     return match[3] if calc_range(match.span(1), match.span(2)) > calc_range(match.span(2), match.span(3)) else match[1]
 
 
-def get_count_by_span(sentence: str, keyword_span: tuple) -> str:
+def get_count_by_span(sentence: str, keyword_span: tuple, default: str) -> str:
     pattern = r"(?:^|[^\w\.-_-])(\d+(?:[\.,]\d{3})*)(?:$|[^\w\.-_-])"
     matches = re.finditer(pattern, sentence, re.IGNORECASE)
     res = None
@@ -39,11 +39,13 @@ def get_count_by_span(sentence: str, keyword_span: tuple) -> str:
         if v < min:
             min = v
             res = match[1]
-    return res
+    return res if res != None else default
 
 
-def get_time(sentence: str, keyword: str, default: str) -> str:
-    return ""
+def get_time(sentence: str, default: str) -> str:
+    pattern = r"(?:(?:senin|selasa|rabu|kamis|jumat|jum'at|sabtu|minggu)?,? )?\(?\d{1,2}[/ ]\w+[/ ]\d{1,4}\)? ?(?:pukul )?\d{1,2}(?:[.:]\d{1,2})?(?: ?(?:WIB|WITA|WIT))?|(?:(?:se|\d+ )(?:hari|minggu|bulan|tahun)) (?:sebelum|setelah)(?:nya| \w+)"
+    result = re.search(pattern, sentence, re.IGNORECASE)
+    return result[0] if result != None else default
 
 
 if __name__ == "__main__":
@@ -65,13 +67,16 @@ if __name__ == "__main__":
     """
     keyword = data["keyword"]
     result = []
-    for sentence in split_sentences(data["text"]):
+    text = data["text"]
+    default_time = get_time(text)
+    not_found = "Not Found."
+    for sentence in split_sentences(text):
         idx = get_result(sentence, keyword)
         if idx != -1:
             result.append({
                 "sentence": sentence,
                 "index_found": idx,
-                "time": get_time(sentence, keyword, ""),
-                "count": get_count_by_span(sentence, (idx, idx + len(keyword)))
+                "time": get_time(sentence, default_time if default_time != None else not_found),
+                "count": get_count_by_span(sentence, (idx, idx + len(keyword)), not_found)
             })
     print(json.dumps(result))
