@@ -32,10 +32,10 @@ app.use(
         ]);
         let result = "";
         let error = "";
-        process.stdout.on("data", (data) => {
+        process.stdout.on("data", (data: string) => {
             result += data;
         });
-        process.stderr.on("data", (data) => {
+        process.stderr.on("data", (data: string) => {
             error += data;
         });
         process.stdout.on("end", () => {

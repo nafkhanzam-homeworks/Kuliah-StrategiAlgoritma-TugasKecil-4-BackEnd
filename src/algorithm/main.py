@@ -19,16 +19,6 @@ def calc_range(a: tuple, b: tuple) -> int:
     return b[0] - a[1] if a[1] < b[0] else a[0] - b[1]
 
 
-def get_count(sentence: str, keyword: str) -> str:
-    """
-    Abandoned function, but felt very deplore to delete
-    """
-    pattern = r"(?:(?:(?:^| )(\d+(?:\.\d+)*) (?:.*))|(?:.?))(" + \
-        keyword + r")(?:(?:(?:.*?) (\d+(?:\.\d+)*))(?: |$)|(?:.?))"
-    match = re.search(pattern, sentence, re.IGNORECASE)
-    return match[3] if calc_range(match.span(1), match.span(2)) > calc_range(match.span(2), match.span(3)) else match[1]
-
-
 def get_count_by_span(sentence: str, keyword_span: tuple, default: str) -> str:
     pattern = r"(?:^|[^\w\.-_-])(\d+(?:[\.,]\d{3})*)(?:$|[^\w\.-_-])"
     matches = re.finditer(pattern, sentence, re.IGNORECASE)
