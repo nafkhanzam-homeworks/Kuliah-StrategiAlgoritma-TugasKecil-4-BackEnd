@@ -22,8 +22,10 @@ def get_result(text: str, pattern: str) -> int:
             p -= 1
         else:
             last = table.get(text[t])
-            if last == None or last >= p:
+            if last == None:
                 start_index += p + 1
+            elif last >= p:
+                start_index += 1
             else:
                 start_index += p - last
             p = plen - 1
