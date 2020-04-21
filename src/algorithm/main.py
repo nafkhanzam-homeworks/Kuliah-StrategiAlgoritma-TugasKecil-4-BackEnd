@@ -33,9 +33,10 @@ def get_count_by_span(sentence: str, keyword_span: tuple, default: str) -> str:
 
 
 def get_time(sentence: str, default: str) -> str:
-    pattern = r"(?:(?:senin|selasa|rabu|kamis|jumat|jum'at|sabtu|minggu)?,? )?\(?\d{1,2}[/ ]\w+[/ ]\d{1,4}\)? ?(?:pukul )?\d{1,2}(?:[.:]\d{1,2})?(?: ?(?:WIB|WITA|WIT))?|(?:(?:se|\d+ )(?:hari|minggu|bulan|tahun)) (?:sebelum|setelah)(?:nya| \w+)"
-    result = re.search(pattern, sentence, re.IGNORECASE)
-    return result[0] if result != None else default
+    child = r"(?:(?:senin|selasa|rabu|kamis|jumat|jum'at|sabtu|minggu)[, ]*)|(?:\(?\d{1,2}[/ -](?:\d{1,2}|januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember|jan|feb|mar|apr|jun|jul|sept|okt|nov|des)(?:[/ -]\d{1,4})?\)?[, ]*)|(?:(?:pukul\W)?\d{1,2}[:.]\d{1,2}\W(?:WIB|WIT|WITA)?[\W]*?)|(?:(?:(?:per[ ]?)?(?:hari|minggu|bulan|tahun) (?:ini|kemarin|depan)|se(?:tiap )?(?:hari|minggu|bulan|tahun) (?:(?:sebelum|setelah)(?:nya)?)?))"
+    pattern = rf"(?:{child}| (?={child}))+"
+    result = re.findall(pattern, sentence, re.IGNORECASE)
+    return result[0].strip() if len(result) > 0 else default
 
 
 if __name__ == "__main__":
