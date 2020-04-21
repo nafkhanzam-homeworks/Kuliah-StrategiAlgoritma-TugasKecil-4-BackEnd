@@ -11,7 +11,7 @@ def fail(alg: str):
 
 
 def split_sentences(text: str):
-    pattern = r"(?:(?<=\. )|(?<=\.$)|(?<=^))((?!\n).*?)(?:(?=\. |\.$|\n))"
+    pattern = r"(?:(?<=\. )|(?<=\.$)|(?<=^))((?!\n).*?)(?:\. |\.$|\n)"
     return re.findall(pattern, text, re.MULTILINE)
 
 
@@ -68,15 +68,15 @@ if __name__ == "__main__":
     keyword = data["keyword"]
     result = []
     text = data["text"]
-    default_time = get_time(text)
     not_found = "Not Found."
+    default_time = get_time(text, not_found)
     for sentence in split_sentences(text):
-        idx = get_result(sentence, keyword)
+        idx = get_result(sentence.lower(), keyword.lower())
         if idx != -1:
             result.append({
                 "sentence": sentence,
                 "index_found": idx,
-                "time": get_time(sentence, default_time if default_time != None else not_found),
+                "time": get_time(sentence, default_time),
                 "count": get_count_by_span(sentence, (idx, idx + len(keyword)), not_found)
             })
     print(json.dumps(result))

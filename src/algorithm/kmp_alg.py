@@ -1,8 +1,9 @@
-def generate_table(pattern: str) -> [int]:
-    table = [0] * (len(pattern) - 1)
+def generate_longest_prefix_suffix_table(pattern: str) -> [int]:
+    plen = len(pattern)
+    table = [0] * (plen - 1)
     i = 1
     j = 0
-    while i < len(pattern) - 1:
+    while i < plen - 1:
         if pattern[i] == pattern[j]:
             j += 1
         else:
@@ -13,15 +14,15 @@ def generate_table(pattern: str) -> [int]:
 
 
 def get_result(text: str, pattern: str) -> int:
-    table = generate_table(pattern)
+    table = generate_longest_prefix_suffix_table(pattern)
     start_index = 0
     i = 0
-    while start_index <= len(text) - len(pattern):
-        print(i)
-        while i < len(pattern) and text[start_index + i] == pattern[i]:
+    plen = len(pattern)
+    while start_index <= len(text) - plen:
+        while i < plen and text[start_index + i] == pattern[i]:
             i += 1
-        if i == len(pattern):
+        if i >= plen:
             return start_index
-        i = table[i - 1] if i > 0 else 0
-        start_index += 1
+        start_index += 1 if i == 0 else i - table[i - 1]
+        i = 0 if i == 0 else table[i - 1]
     return -1
